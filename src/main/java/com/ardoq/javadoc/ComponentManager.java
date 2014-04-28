@@ -60,7 +60,7 @@ public class ComponentManager {
 
     void updateMethodDoc(MethodDoc doc) {
         if (doc.returnType() != null && doc.returnType().qualifiedTypeName() != null) {
-            Component c = this.getComponent(doc.qualifiedName());
+            Component c = ardoqSync.getComponentByPath(doc.qualifiedName());
             c.setDescription(SimpleMarkdownUtil.htmlToMarkdown(c.getDescription()) + "\n\nReturns " + this.getComponentLinkOrText(doc.returnType().qualifiedTypeName()));
             this.updateComponent(doc.qualifiedName(), c);
 
@@ -85,19 +85,23 @@ public class ComponentManager {
     }
 
     void addJDependInfo(Component packageComp) {
-        Map<String, Object> fields = packageComp.getFields();
-        JavaPackage jp = this.analyzer.getPackage(packageComp.getName());
-        fields.put("AbstractClassCount", jp.getAbstractClassCount());
-        fields.put("Abstractness", jp.abstractness());
-        fields.put("AfferentCoupling", jp.afferentCoupling());
-        fields.put("ContainsCycle", jp.containsCycle());
-        fields.put("Distance", jp.distance());
-        fields.put("EfferentCoupling", jp.efferentCoupling());
-        fields.put("ClassCount", jp.getClassCount());
-        fields.put("ConcreteClassCount", jp.getConcreteClassCount());
-        fields.put("Volatility", jp.getVolatility());
-        fields.put("Instability", jp.instability());
-        packageComp.setFields(fields);
+        if (null != this.analyzer)
+        {
+            Map<String, Object> fields = packageComp.getFields();
+            JavaPackage jp = this.analyzer.getPackage(packageComp.getName());
+            fields.put("AbstractClassCount", jp.getAbstractClassCount());
+            fields.put("Abstractness", jp.abstractness());
+            fields.put("AfferentCoupling", jp.afferentCoupling());
+            fields.put("ContainsCycle", jp.containsCycle());
+            fields.put("Distance", jp.distance());
+            fields.put("EfferentCoupling", jp.efferentCoupling());
+            fields.put("ClassCount", jp.getClassCount());
+            fields.put("ConcreteClassCount", jp.getConcreteClassCount());
+            fields.put("Volatility", jp.getVolatility());
+            fields.put("Instability", jp.instability());
+            packageComp.setFields(fields);
+        }
+
     }
 
 

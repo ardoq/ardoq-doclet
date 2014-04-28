@@ -15,7 +15,10 @@ import java.util.Collection;
 import java.util.HashMap;
 
 /**
- * Contains all the functionality for running ArdoqDoclet standalone or via ```javadoc -doclet ```
+ * Contains all the functionality for running ArdoqDoclet standalone or via
+ *
+ * ```javadoc -doclet```
+ *
  */
 public class ArdoqDoclet {
     private static String ardoqUsername = null; //System.getenv("ardoqUsername");
@@ -26,7 +29,7 @@ public class ArdoqDoclet {
     private static String workspaceDir = "";
     private static String sourceControl= null;
     private static String srcDirectory = "";
-    private static String targetDirectory = "";
+    private static String targetDirectory = null;
     private final ReferenceManager referenceManager;
     private final ComponentManager componentManager;
 
@@ -37,14 +40,14 @@ public class ArdoqDoclet {
     private final Workspace workspace;
 
     /**
-     * Constructs a new ArdoqDoclet
+     * Constructs a new ArdoqDoclet that communicates with the given ArdoqClient.
      * @param client The ArdoqClient to use
      * @param root The JavaDoc RootDoc to document.
      */
     public ArdoqDoclet(ArdoqClient client, RootDoc root) throws IOException {
         this.ardoqSync = new SyncUtil(client, workspaceName, "JavaDoc");
         this.client = client;
-        this.client.setLogLevel(RestAdapter.LogLevel.HEADERS);
+        this.client.setLogLevel(RestAdapter.LogLevel.NONE);
 
 
         this.workspace = this.ardoqSync.updateWorkspaceIfDifferent(new Workspace(workspaceName, this.ardoqSync.getModel().getId(), getWorkspaceDescription()));
@@ -71,6 +74,8 @@ public class ArdoqDoclet {
 
 
         this.ardoqSync.deleteNotSyncedItems();
+        this.ardoqSync.syncTags();
+
         System.out.println(this.ardoqSync.getReport());
     }
 
