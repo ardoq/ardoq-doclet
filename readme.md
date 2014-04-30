@@ -15,6 +15,12 @@ It will try to synchronize existing workspace based on name, and only add or rem
 
 **NB! This is an example plugin, that you can expand upon. It has been used successfully in-house.**
 
+### Example output in Relationship view in Ardoq
+
+![Relationships in ardoq-java-client](https://github.com/ardoq/ardoq-doclet/raw/master/examples/ardoq-java-client-example.svg)
+
+
+
 Execution
 ------------
 
