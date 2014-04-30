@@ -6,7 +6,7 @@
     <groupId>com.ardoq.javadoc</groupId>
     <artifactId>ardoq-doclet</artifactId>
     <packaging>jar</packaging>
-    <version>0.5.1</version>
+    <version>0.5.2</version>
 
     <properties>
         <aws-maven.version>5.0.0.RELEASE</aws-maven.version>
@@ -31,7 +31,7 @@
         <dependency>
             <groupId>com.ardoq.api</groupId>
             <artifactId>client</artifactId>
-            <version>0.8.1</version>
+            <version>0.8.2</version>
         </dependency>
         <dependency>
             <groupId>jdepend</groupId>
@@ -117,7 +117,7 @@
                                 <artifactId>ardoq-doclet</artifactId>
                                 <version>0.5.1</version>
                             </docletArtifact>
-                            <additionalparam>-ardoqToken 19a563c2083a48aa87e6928d269b8ab1 -ardoqHost -ardoqHost http://localhost:8080 -workspaceName "ardoq-doclet"</additionalparam>
+                            <additionalparam>-ardoqToken 19a563c2083a48aa87e6928d269b8ab1 -projectDir ../../../ -targetClasses ../../../target/classes -ardoqHost http://localhost:8080 -workspaceName ardoq-doclet</additionalparam>
                             <useStandardDocletOptions>false</useStandardDocletOptions>
                         </configuration>
                     <reports>
