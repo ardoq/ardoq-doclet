@@ -6,7 +6,7 @@ If you specify where we can find your classes, with ```-targetClasses ./target/c
 
 Use it by executing it as a standalone java-application or part of your maven build process.
 
-If you provide a readme.md in your projects root, it will use that to describe your Workspace in ardoq.
+If you provide a readme.md in your projects root (```projectDir```-argument), it will use that to describe your Workspace in ardoq.
 
 It also supports markdown in ```/* javadoc comments... :-) */```
 

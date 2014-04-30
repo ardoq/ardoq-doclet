@@ -167,7 +167,7 @@ public class ComponentManager {
     String getParamsDocumentation(ExecutableMemberDoc emd) {
         String paramsDoc = "";
         for (Parameter p : emd.parameters()) {
-            paramsDoc += " ," + this.getComponentLinkOrText(p.typeName()) + " " + p.name();
+            paramsDoc += ", " + this.getComponentLinkOrText(p.typeName()) + " " + p.name();
         }
         paramsDoc = (paramsDoc.length() > 0) ? paramsDoc.substring(2) : "";
         String emdDoc = emd.name() + "(" + paramsDoc + ")\n\n" + SimpleMarkdownUtil.htmlToMarkdown(emd.commentText()) + "\n\n";

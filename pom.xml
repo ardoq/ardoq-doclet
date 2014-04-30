@@ -117,7 +117,7 @@
                                 <artifactId>ardoq-doclet</artifactId>
                                 <version>0.5.3</version>
                             </docletArtifact>
-                            <additionalparam>-ardoqToken ${env.ardoqToken} -projectDir "${project.build.directory}/../" -targetClasses ${project.build.outputDirectory} -ardoqHost http://localhost:8080 -workspaceName "${project.name}-${project.version}"</additionalparam>
+                            <additionalparam>-ardoqToken ${env.ardoqToken} -projectDir "${project.build.directory}/../" -targetClasses ${project.build.outputDirectory} -workspaceName "${project.name}"  -ardoqOrganization shared -sourceControl https://github.com/ardoq/ardoq-doclet/tree/master/src/main/java/</additionalparam>
                             <useStandardDocletOptions>false</useStandardDocletOptions>
                         </configuration>
                     <reports>
