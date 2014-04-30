@@ -41,7 +41,6 @@ public class ComponentManager {
     public void documentPackagesAndComponents(){
         PackageDoc[] packageDocs = root.specifiedPackages();
         for (PackageDoc p : packageDocs){
-            System.out.println("Creating doc for package: "+p.name());
             Component packageComp = this.addPackage(p);
             this.addClasses(packageComp, p.allClasses(true));
         }
@@ -89,17 +88,23 @@ public class ComponentManager {
         {
             Map<String, Object> fields = packageComp.getFields();
             JavaPackage jp = this.analyzer.getPackage(packageComp.getName());
-            fields.put("AbstractClassCount", jp.getAbstractClassCount());
-            fields.put("Abstractness", jp.abstractness());
-            fields.put("AfferentCoupling", jp.afferentCoupling());
-            fields.put("ContainsCycle", jp.containsCycle());
-            fields.put("Distance", jp.distance());
-            fields.put("EfferentCoupling", jp.efferentCoupling());
-            fields.put("ClassCount", jp.getClassCount());
-            fields.put("ConcreteClassCount", jp.getConcreteClassCount());
-            fields.put("Volatility", jp.getVolatility());
-            fields.put("Instability", jp.instability());
-            packageComp.setFields(fields);
+            if (jp != null) {
+                fields.put("AbstractClassCount", jp.getAbstractClassCount());
+                fields.put("Abstractness", jp.abstractness());
+                fields.put("AfferentCoupling", jp.afferentCoupling());
+                fields.put("ContainsCycle", jp.containsCycle());
+                fields.put("Distance", jp.distance());
+                fields.put("EfferentCoupling", jp.efferentCoupling());
+                fields.put("ClassCount", jp.getClassCount());
+                fields.put("ConcreteClassCount", jp.getConcreteClassCount());
+                fields.put("Volatility", jp.getVolatility());
+                fields.put("Instability", jp.instability());
+                packageComp.setFields(fields);
+            }
+            else
+            {
+                System.out.println("Missing JDepend info on package: "+packageComp.getName());
+            }
         }
 
     }
@@ -122,7 +127,7 @@ public class ComponentManager {
 
         if (c == null) {
             String type = this.getType(classDoc);
-            c = new Component(classDoc.name(), this.workspace.getId(), classDoc.commentText(), model.getComponentTypeByName(type), packageComp.getId());
+            c = new Component(classDoc.name(), this.workspace.getId(), SimpleMarkdownUtil.htmlToMarkdown(classDoc.commentText()), model.getComponentTypeByName(type), packageComp.getId());
             c.setType(type);
             addParams(classDoc, c);
 
@@ -172,7 +177,7 @@ public class ComponentManager {
             paramDescription += "|" + pt.text().replaceFirst(" ", "|") + "|\n";
         }
         if (paramDescription.length() > 0) {
-            emdDoc += "|Parameter|Description|\n" + paramDescription;
+            emdDoc += "|Parameter|Description|\n" + SimpleMarkdownUtil.htmlToMarkdown(paramDescription);
         }
 
         return emdDoc;
@@ -184,7 +189,7 @@ public class ComponentManager {
             Component c = this.componentMap.get(classId);
             linkOrText = "[" + classId + "](comp://" + c.getId() + "/" + c.getName() + ")";
         } else {
-            linkOrText = classId;
+            linkOrText = SimpleMarkdownUtil.htmlToMarkdown(classId);
         }
         return linkOrText;
     }
@@ -198,11 +203,10 @@ public class ComponentManager {
         fields.put("package", classDoc.containingPackage().name());
         Boolean deprecated = false;
         for (Tag tag : classDoc.tags()) {
-            String name = tag.kind().replace("@", "");
+            String name = tag.kind().replace("@", "").replace(".", "-");
             if (name.equals("deprecated")) {
                 deprecated = true;
             } else if (!name.equals("param") && !name.equals("throws") && !name.equals("see") && !name.equals("serial") && !name.equals("return")) {
-                System.out.println("Name val: " + name + " - " + name + " = " + tag.text());
                 fields.put(name, tag.text());
             }
         }
@@ -226,7 +230,6 @@ public class ComponentManager {
         if (classDoc.isException()) {
             return "Exception";
         } else if (classDoc.isInterface()) {
-            System.out.println("Interface type found");
             return "Interface";
         } else if (classDoc.isEnum()) {
             return "Enum";

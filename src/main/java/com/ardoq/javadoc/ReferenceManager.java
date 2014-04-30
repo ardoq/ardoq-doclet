@@ -38,9 +38,7 @@ public class ReferenceManager {
 
     void addReferences() {
         ProgramElementDoc[] classes = compManager.getClasses();
-        System.out.println("Adding references: " + classes.length);
         for (ProgramElementDoc source : classes) {
-            System.out.println("Creating references for: " + source.name());
             for (Tag tag : source.seeTags()) {
                 createReference(source, compManager.getClassByQualifiedName(tag.text().trim()), "Implicit");
             }
@@ -78,7 +76,6 @@ public class ReferenceManager {
                 createReference(sourceClass, sourceClass.superclass(), "Extends");
 
                 for (FieldDoc field : sourceClass.fields(false)) {
-                    System.out.println("Creating field: " + field.toString() + " - " + field.qualifiedName());
                     ProgramElementDoc d = compManager.getClassByQualifiedName(field.type().qualifiedTypeName());
                     if (d != null) {
                         createReference(sourceClass, d, "Uses");

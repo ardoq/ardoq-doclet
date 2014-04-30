@@ -15,9 +15,12 @@ import java.util.Collection;
 import java.util.HashMap;
 
 /**
- * Contains all the functionality for running ArdoqDoclet standalone or via
+ * Contains all the functionality for running ArdoqDoclet standalone or via JavaDoc, or maven.
  *
- * ```javadoc -doclet```
+ * ```
+ * export docletLibs="$JAVA_HOME/lib/javafx-doclet.jar:$JAVA_HOME/lib/tools.jar:$M2_HOME/repository/com/ardoq/api/client/0.8.1/client-0.8.1.jar:$M2_HOME/repository/commons-codec/commons-codec/1.9/commons-codec-1.9.jar:$M2_HOMErepository/com/squareup/retrofit/retrofit/1.5.0/retrofit-1.5.0.jar:$M2_HOME/repository/com/google/code/gson/gson/2.2.4/gson-2.2.4.jar:$M2_HOME/repository/jdepend/jdepend/2.9.1/jdepend-2.9.1.jar"
+ * java -Dfile.encoding=UTF-8 -classpath $docletLibs com.ardoq.javadoc.ArdoqDoclet -ardoqToken 19a563c2083a48aa87e6928d269b8ab1 -ardoqHost http://localhost:8080 -workspaceName javadoc client -d ./target -targetClasses ./target/classes -sourcepath ./src/main/java -exclude java.net:java.lang -sourceControl https://github.com/ardoq/ardoq-doclet/tree/master/src/main/java -subpackages com.ardoq
+ * ```
  *
  */
 public class ArdoqDoclet {
@@ -30,6 +33,7 @@ public class ArdoqDoclet {
     private static String sourceControl= null;
     private static String srcDirectory = "";
     private static String targetDirectory = null;
+    private static String organization;
     private final ReferenceManager referenceManager;
     private final ComponentManager componentManager;
 
@@ -77,6 +81,7 @@ public class ArdoqDoclet {
         this.ardoqSync.syncTags();
 
         System.out.println(this.ardoqSync.getReport());
+        System.out.println("\n\nSee result: "+host+"/app/view/workspace/"+this.ardoqSync.getWorkspace().getId()+"\n\n");
     }
 
     String getWorkspaceDescription() {
@@ -98,10 +103,6 @@ public class ArdoqDoclet {
 
     private void jDepend() {
         Collection<JavaPackage> packages = analyzer.analyze();
-        for (JavaPackage jp : packages){
-            System.out.println(jp.getClasses());
-            System.out.println(jp.getName());
-        }
     }
 
 
@@ -113,7 +114,10 @@ public class ArdoqDoclet {
         for (String option[] : options){
             if (option.length > 1) {
                 System.out.println(option[0] + "=" + option[1]);
-                if (option[0].equalsIgnoreCase("-targetClasses")){
+                if (option[0].equalsIgnoreCase("-ardoqOrganization")){
+                    organization = option[1];
+                }
+                else if (option[0].equalsIgnoreCase("-targetClasses")){
                     targetDirectory = option[1];
                 }
                 else if (option[0].equalsIgnoreCase("-sourcepath")){
@@ -155,6 +159,10 @@ public class ArdoqDoclet {
         else
         {
             client = new ArdoqClient(host, ardoqUsername, ardoqPassword);
+        }
+
+        if (null != organization){
+            client.setOrganization(organization);
         }
 
         try {
