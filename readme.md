@@ -15,11 +15,16 @@ It will try to synchronize existing workspace based on name, and only add or rem
 
 **NB! This is an example plugin, that you can expand upon. It has been used successfully in-house.**
 
-### Example output in Relationship view in Ardoq
+### Example result in Ardoq
 
-![Relationships in ardoq-java-client](https://github.com/ardoq/ardoq-doclet/raw/master/examples/ardoq-java-client-example.svg)
+####Relationship view in Ardoq
+The picture shows how all the relationships between methods, classes, interfaces and so forth are.
+Package-references are generated based on the JDepend analysis, and can be filtered in [Ardoq](http://ardoq.com).
+![Relationships in ardoq-java-client](https://github.com/ardoq/ardoq-doclet/raw/master/examples/ardoq-java-client-example.png)
 
-
+####Process view
+This picture shows all the found (publicly declared), references for the class SyncUtil.
+![Relationships in ardoq-java-client](https://github.com/ardoq/ardoq-doclet/raw/master/examples/SyncUtil_process_links.png)
 
 Execution
 ------------
