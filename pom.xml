@@ -115,7 +115,7 @@
                             <docletArtifact>
                                 <groupId>com.ardoq.javadoc</groupId>
                                 <artifactId>ardoq-doclet</artifactId>
-                                <version>1.0-SNAPSHOT</version>
+                                <version>0.5.1</version>
                             </docletArtifact>
                             <additionalparam>-ardoqToken 19a563c2083a48aa87e6928d269b8ab1 -ardoqHost -ardoqHost http://localhost:8080 -workspaceName "ardoq-doclet"</additionalparam>
                             <useStandardDocletOptions>false</useStandardDocletOptions>
