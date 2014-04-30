@@ -6,7 +6,26 @@
     <groupId>com.ardoq.javadoc</groupId>
     <artifactId>ardoq-doclet</artifactId>
     <packaging>jar</packaging>
-    <version>0.4.0-SNAPSHOT</version>
+    <version>0.5.0</version>
+
+    <properties>
+        <aws-maven.version>5.0.0.RELEASE</aws-maven.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <distributionManagement>
+        <repository>
+            <id>aws-release</id>
+            <name>AWS Release Repository</name>
+            <url>s3://maven.ardoq.com/release</url>
+        </repository>
+        <snapshotRepository>
+            <id>aws-snapshot</id>
+            <name>AWS Snapshot Repository</name>
+            <url>s3://maven.ardoq.com/snapshot</url>
+        </snapshotRepository>
+    </distributionManagement>
+
 
     <dependencies>
         <dependency>
@@ -65,7 +84,14 @@
                <version>2.8.1</version>
            </plugin>
        </plugins>
-        <resources>
+       <extensions>
+           <extension>
+               <groupId>org.springframework.build</groupId>
+               <artifactId>aws-maven</artifactId>
+               <version>${aws-maven.version}</version>
+           </extension>
+       </extensions>
+       <resources>
             <resource>
                 <directory>src/main/resources</directory>
                 <filtering>true</filtering>
@@ -91,7 +117,7 @@
                                 <artifactId>ardoq-doclet</artifactId>
                                 <version>1.0-SNAPSHOT</version>
                             </docletArtifact>
-                            <additionalparam>-ardoqUsername magnulf -ardoqPassword bEOVOx80 -ardoqHost http://localhost:8080 -workspaceName "ardoq-javadoc"</additionalparam>
+                            <additionalparam>-ardoqToken 19a563c2083a48aa87e6928d269b8ab1 -ardoqHost -ardoqHost http://localhost:8080 -workspaceName "ardoq-doclet"</additionalparam>
                             <useStandardDocletOptions>false</useStandardDocletOptions>
                         </configuration>
                     <reports>
