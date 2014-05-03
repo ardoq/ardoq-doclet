@@ -68,6 +68,8 @@ It will look for the environment variable ```YOUR_ARDOQ_TOKEN``` to authenticate
 
 ```xml
 <reporting>
+        <!-- Excludes standard reports -->
+        <excludeDefaults>true</excludeDefaults>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

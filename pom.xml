@@ -100,6 +100,7 @@
     </build>
 
     <reporting>
+        <excludeDefaults>true</excludeDefaults>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -110,8 +111,6 @@
                         <id>ardoq</id>
                         <configuration>
                             <doclet>com.ardoq.javadoc.ArdoqDoclet</doclet>
-
-                            <!-- <docletPath>/target/classes</docletPath>  -->
                             <docletArtifact>
                                 <groupId>com.ardoq.javadoc</groupId>
                                 <artifactId>ardoq-doclet</artifactId>
@@ -120,9 +119,9 @@
                             <additionalparam>-ardoqToken ${env.ardoqToken} -projectDir "${project.build.directory}/../" -targetClasses ${project.build.outputDirectory} -workspaceName "${project.name}"  -ardoqOrganization shared -sourceControl https://github.com/ardoq/ardoq-doclet/tree/master/src/main/java/</additionalparam>
                             <useStandardDocletOptions>false</useStandardDocletOptions>
                         </configuration>
-                    <reports>
-                       <report>javadoc</report>
-                    </reports>
+                        <reports>
+                            <report>javadoc</report>
+                        </reports>
                     </reportSet>
                 </reportSets>
             </plugin>
