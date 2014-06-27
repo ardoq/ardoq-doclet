@@ -7,9 +7,9 @@ import com.sun.javadoc.*;
 import jdepend.framework.JavaPackage;
 import retrofit.RestAdapter;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.HashMap;
@@ -96,9 +96,25 @@ public class ArdoqDoclet {
 
     String readFile(String path)
             throws IOException {
-        System.out.println("Loading description README.md: " + Paths.get(path).toAbsolutePath().normalize());
-        byte[] encoded = Files.readAllBytes(Paths.get(path));
-        return new String(encoded, Charset.forName("UTF-8"));
+        BufferedReader reader = new BufferedReader(new FileReader(path));
+        String data = "";
+        try
+        {
+            String line = null;
+            while ((line = reader.readLine()) != null)
+            {
+                    data += line+"\n";
+            }
+        }
+        catch (IOException ex)
+        {
+            ex.printStackTrace();
+        }
+        finally
+        {
+            reader.close();
+        }
+        return data;
     }
 
     private void jDepend() {
