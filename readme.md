@@ -52,6 +52,13 @@ Parameter           | Description
 export docletLibs="$JAVA_HOME/lib/javafx-doclet.jar:$JAVA_HOME/lib/tools.jar:$M2_HOME/repository/com/ardoq/api/client/0.8.1/client-0.8.1.jar:$M2_HOME/repository/commons-codec/commons-codec/1.9/commons-codec-1.9.jar:$M2_HOMErepository/com/squareup/retrofit/retrofit/1.5.0/retrofit-1.5.0.jar:$M2_HOME/repository/com/google/code/gson/gson/2.2.4/gson-2.2.4.jar:$M2_HOME/repository/jdepend/jdepend/2.9.1/jdepend-2.9.1.jar"
 java -Dfile.encoding=UTF-8 -classpath $docletLibs com.ardoq.javadoc.ArdoqDoclet -ardoqToken 19a563c2083a48aa87e6928d269b8ab1 -ardoqHost http://localhost:8080 -workspaceName javadoc client -d ./target -targetClasses ./target/classes -sourcepath ./src/main/java -exclude java.net:java.lang -sourceControl https://github.com/ardoq/ardoq-doclet/tree/master/src/main/java -subpackages com.ardoq
 ```
+### Tags used
+* Import pacakages and classes are now also references, and can be filtered via the tags `#ImportedClass` and `#ImportedPackage`.
+* References to external java-projects are now tagged as `#ExternalDependecy`.
+* Objects that are return values from methods are now tagged as `#ReturnValue`.
+* `#Uses` just means that a method or a class uses something
+* `#jdepend` Reveals the packages and depencies found from JDepend
+* `#parameter`  Means that the object is used as a parameter in a constructor or method
 
 ### In your Maven pom.xml
 Add the following to your Pom.
