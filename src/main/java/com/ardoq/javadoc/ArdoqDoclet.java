@@ -2,6 +2,7 @@ package com.ardoq.javadoc;
 
 import com.ardoq.ArdoqClient;
 import com.ardoq.model.*;
+import com.ardoq.util.CacheManager;
 import com.ardoq.util.SyncUtil;
 import com.sun.javadoc.*;
 import jdepend.framework.JavaPackage;
@@ -34,8 +35,12 @@ public class ArdoqDoclet {
     private static String srcDirectory = "";
     private static String targetDirectory = null;
     private static String organization;
+    private static String cacheDirectory = System.getProperty("java.io.tmpdir");
+    private static boolean clearCache;
+    private static boolean ignoreMethods = false;
     private final ReferenceManager referenceManager;
     private final ComponentManager componentManager;
+    private final CacheManager cacheManager;
 
     private jdepend.framework.JDepend analyzer;
 
@@ -55,9 +60,10 @@ public class ArdoqDoclet {
 
 
         this.workspace = this.ardoqSync.updateWorkspaceIfDifferent(new Workspace(workspaceName, this.ardoqSync.getModel().getId(), getWorkspaceDescription()));
-
-        this.componentManager = new ComponentManager(workspace, ardoqSync, root);
-        this.referenceManager = new ReferenceManager(componentManager, ardoqSync);
+        this.cacheManager = new CacheManager(cacheDirectory, clearCache);
+        this.componentManager = new ComponentManager(workspace, ardoqSync, root, cacheManager);
+        this.componentManager.setIgnoreMethods(ignoreMethods);
+        this.referenceManager = new ReferenceManager(componentManager, ardoqSync, cacheManager);
 
         if (null != sourceControl)
         {
@@ -79,7 +85,7 @@ public class ArdoqDoclet {
 
         this.ardoqSync.deleteNotSyncedItems();
         this.ardoqSync.syncTags();
-
+        this.cacheManager.saveCache();
         System.out.println(this.ardoqSync.getReport());
         System.out.println("\n\nSee result: "+host+"/app/view/workspace/"+this.ardoqSync.getWorkspace().getId()+"\n\n");
     }
@@ -126,7 +132,6 @@ public class ArdoqDoclet {
 
 
     public static boolean validOptions(String[][] options, DocErrorReporter reporter){
-
         for (String option[] : options){
             if (option.length > 1) {
                 System.out.println(option[0] + "=" + option[1]);
@@ -158,6 +163,15 @@ public class ArdoqDoclet {
                 }
                 else if (option[0].equalsIgnoreCase("-ardoqToken")){
                     token = option[1];
+                }
+                else if (option[0].equalsIgnoreCase("-clearCache")){
+                    clearCache = Boolean.parseBoolean(option[1]);
+                }
+                else if (option[0].equalsIgnoreCase("-cacheDirectory")){
+                    cacheDirectory = option[1];
+                }
+                else if (option[0].equalsIgnoreCase("-ignoreMethods")){
+                    ignoreMethods = true;
                 }
             }
 

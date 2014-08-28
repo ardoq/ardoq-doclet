@@ -1,6 +1,7 @@
 package com.ardoq.javadoc;
 
 import com.ardoq.model.*;
+import com.ardoq.util.CacheManager;
 import com.ardoq.util.SimpleMarkdownUtil;
 import com.ardoq.util.SyncUtil;
 import com.sun.javadoc.*;
@@ -18,16 +19,18 @@ public class ReferenceManager {
     private final ComponentManager compManager;
     private final Workspace workspace;
     private final Model model;
+    private final CacheManager cacheManager;
 
     private JDepend analyzer;
 
     private HashMap<String, Boolean> addedRef = new HashMap<String, Boolean>();
 
-    public ReferenceManager(ComponentManager compManager, SyncUtil ardoqSync) {
+    public ReferenceManager(ComponentManager compManager, SyncUtil ardoqSync, CacheManager cacheManager) {
         this.compManager = compManager;
         this.ardoqSync = ardoqSync;
         this.workspace = ardoqSync.getWorkspace();
         this.model = ardoqSync.getModel();
+        this.cacheManager = cacheManager;
 
     }
 
@@ -40,54 +43,56 @@ public class ReferenceManager {
         ProgramElementDoc[] classes = compManager.getClasses();
         for (ProgramElementDoc source : classes) {
             for (Tag tag : source.seeTags()) {
-                createReference(source, compManager.getClassByQualifiedName(tag.text().trim()), "Implicit");
+                createReference(source, tag.text().trim(), "Implicit");
             }
 
             if (source.isMethod()) {
                 MethodDoc md = (MethodDoc) source;
                 for (ClassDoc ex : md.thrownExceptions()) {
-                    createReference(source, compManager.getClassByQualifiedName(ex.qualifiedTypeName()), "Throws");
+                    createReference(source, ex.qualifiedTypeName(), "Throws");
                 }
                 for (Parameter p : md.parameters()) {
-                    createReference(source, compManager.getClassByQualifiedName(p.type().qualifiedTypeName()), "Uses");
+                    createReference(source, p.type().qualifiedTypeName(), "Uses");
                 }
 
-                createReference(source, compManager.getClassByQualifiedName(md.returnType().qualifiedTypeName()), "Uses", "Returns");
+                createReference(source, md.returnType().qualifiedTypeName(), "Uses", "Returns the target", "ReturnValue");
 
 
             } else {
                 ClassDoc sourceClass = (ClassDoc) source;
+
+                for (PackageDoc target : sourceClass.importedPackages()) {
+                    createReference(source, target.name(), "Uses", "", "ImportedPackage");
+                }
+
+                for (ClassDoc target : sourceClass.importedClasses()) {
+                    createReference(source, target.qualifiedName(), "Uses");
+                    createReference(source, target.name(), "Uses", "", "ImportedClass");
+                }
+
                 for (ClassDoc target : sourceClass.interfaces()) {
-                    createReference(source, target, "Implements");
+                    createReference(source, target.qualifiedName(), "Implements");
                 }
 
                 for (ConstructorDoc constructor : sourceClass.constructors()) {
                     for (ClassDoc ex : constructor.thrownExceptions()) {
-                        createReference(source, compManager.getClassByQualifiedName(ex.qualifiedTypeName()), "Throws");
+                        createReference(source, ex.qualifiedTypeName(), "Throws");
                     }
 
                     for (Parameter parameter : constructor.parameters()) {
-                        ProgramElementDoc d = compManager.getClassByQualifiedName(parameter.type().qualifiedTypeName());
-                        if (d != null) {
-                            createReference(sourceClass, d,"Uses");
-                        }
+                         createReference(sourceClass, parameter.type().qualifiedTypeName() ,"Uses");
                     }
                 }
-                createReference(sourceClass, sourceClass.superclass(), "Extends");
+                createReference(sourceClass, sourceClass.superclass().qualifiedName(), "Extends");
 
                 for (FieldDoc field : sourceClass.fields(false)) {
-                    ProgramElementDoc d = compManager.getClassByQualifiedName(field.type().qualifiedTypeName());
-                    if (d != null) {
-                        createReference(sourceClass, d, "Uses");
-                    }
+                    createReference(sourceClass, field.type().qualifiedTypeName(), "Uses");
                 }
             }
 
         }
 
         this.addJDependAnalysis();
-
-        
 
     }
 
@@ -102,6 +107,9 @@ public class ReferenceManager {
                     for (Object jpt : coll) {
                         JavaPackage packageTarget = (JavaPackage) jpt;
                         Component target = this.compManager.getComponent(packageTarget.getName());
+                        if (target == null){
+                            target = this.getExternalCachedComponent(packageTarget.getName(), target);
+                        }
                         addJDependRef(src, target);
                     }
 
@@ -109,6 +117,9 @@ public class ReferenceManager {
                     for (Object jpt : coll) {
                         JavaPackage packageTarget = (JavaPackage) jpt;
                         Component target = this.compManager.getComponent(packageTarget.getName());
+                        if (target == null){
+                            target = this.getExternalCachedComponent(packageTarget.getName(), target);
+                        }
                         addJDependRef(target, src);
                     }
                 }
@@ -132,30 +143,64 @@ public class ReferenceManager {
         ardoqSync.updateTag(tag);
     }
 
-    void createReference(ProgramElementDoc source, ProgramElementDoc target, String refType) {
-        if (source != target)
-        createReference(source, target, refType, "");
+    Reference createReference(ProgramElementDoc source, String target, String refType) {
+        if (!source.qualifiedName().equalsIgnoreCase(target))
+        {
+            return createReference(source, target, refType, "", null);
+        }
+        return null;
     }
 
-    void createReference(ProgramElementDoc source, ProgramElementDoc target, String refTypeName, String description) {
+    Reference createReference(ProgramElementDoc source, String target, String refTypeName, String description, String customTag) {
 
-        Component targetComp = (null != target) ? compManager.getComponent(target.qualifiedName()) : null;
+        Component targetComp = (null != target) ? compManager.getComponent(target) : null;
         Component srcComp =  (null != source) ? compManager.getComponent(source.qualifiedName()) : null;
 
-        if (target != null && srcComp != null && targetComp != null && !addedRef.containsKey(source.qualifiedName() + target.qualifiedName())) {
-            addedRef.put(source.qualifiedName() + target.qualifiedName(), true);
+        boolean isExternal = false;
+        //Try to retrieve a cached version
+        if (targetComp == null && target != null) {
+            targetComp = getExternalCachedComponent(target, targetComp);
+            isExternal = true;
+        }
+        if (target != null && srcComp != null && targetComp != null && !addedRef.containsKey(source.qualifiedName() + target)) {
+            addedRef.put(source.qualifiedName() + target, true);
             Reference ref;
             Integer refType = this.model.getReferenceTypeByName(refTypeName);
             String tagName = refTypeName;
             if (source.isMethod()) {
                 ref = new Reference(workspace.getId(), "", srcComp.getId(), targetComp.getId(), refType);
+                ref.setTargetWorkspace(targetComp.getRootWorkspace());
                 tagName = TAG_PARAMETER;
             } else {
                 ref = new Reference(workspace.getId(), "", srcComp.getId(), targetComp.getId(), refType);
+                ref.setTargetWorkspace(targetComp.getRootWorkspace());
             }
             ref.setDescription(description);
             ref = this.ardoqSync.addReference(ref);
             tagRefAndComponent(tagName, srcComp, targetComp, ref);
+            if (isExternal){
+                tagRefAndComponent("ExternalDependency", srcComp, targetComp, ref);
+            }
+
+            if (customTag != null){
+                tagRefAndComponent(customTag, srcComp, targetComp, ref);
+            }
+            return ref;
         }
+
+        return null;
+    }
+
+    private Component getExternalCachedComponent(String target, Component targetComp) {
+        if (targetComp == null && target != null){
+            String id = this.cacheManager.getComponentId(target);
+            if (id != null){
+                System.out.println("Found cached component: "+target);
+                String targetWorkspace = this.cacheManager.getWorkspaceId(target);
+                targetComp = new Component("", targetWorkspace, "", "", "");
+                targetComp.setId(id);
+            }
+        }
+        return targetComp;
     }
 }

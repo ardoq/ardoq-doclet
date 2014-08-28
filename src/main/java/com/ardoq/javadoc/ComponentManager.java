@@ -3,6 +3,7 @@ package com.ardoq.javadoc;
 import com.ardoq.model.Component;
 import com.ardoq.model.Model;
 import com.ardoq.model.Workspace;
+import com.ardoq.util.CacheManager;
 import com.ardoq.util.SimpleMarkdownUtil;
 import com.ardoq.util.SyncUtil;
 import com.sun.javadoc.*;
@@ -18,19 +19,22 @@ public class ComponentManager {
     private final Workspace workspace;
 
     private final RootDoc root;
+    private final CacheManager cacheManager;
 
     private JDepend analyzer;
 
     HashMap<String, Component> componentMap = new HashMap<String, Component>();
     HashMap<String, ProgramElementDoc> classMap = new HashMap<String, ProgramElementDoc>();
     private String sourceControlUrl;
+    private boolean ignoreMethods = false;
 
 
-    public ComponentManager(Workspace workspace , SyncUtil ardoqSync, RootDoc root ) {
+    public ComponentManager(Workspace workspace, SyncUtil ardoqSync, RootDoc root, CacheManager cacheManager) {
         this.ardoqSync = ardoqSync;
         this.workspace = workspace;
         this.root = root;
         this.model = ardoqSync.getModel();
+        this.cacheManager = cacheManager;
     }
 
     public void addJDepend(JDepend analyzer)
@@ -80,6 +84,7 @@ public class ComponentManager {
             packageComp = this.ardoqSync.addComponent(packageComp);
             this.componentMap.put(p.name(), packageComp);
         }
+        this.cacheManager.add(p.name(), packageComp.getId(), packageComp.getRootWorkspace());
         return packageComp;
     }
 
@@ -127,6 +132,7 @@ public class ComponentManager {
 
         if (c == null) {
             String type = this.getType(classDoc);
+
             c = new Component(classDoc.name(), this.workspace.getId(), SimpleMarkdownUtil.htmlToMarkdown(classDoc.commentText()), model.getComponentTypeByName(type), packageComp.getId());
             c.setType(type);
             addParams(classDoc, c);
@@ -156,10 +162,14 @@ public class ComponentManager {
             this.componentMap.put(classDoc.qualifiedName(), c);
             if (cd != null && classDoc.isOrdinaryClass()) {
 
+                //TODO: handle ignore add methods
                 for (MethodDoc md : cd.methods()) {
                     this.addClass(c, md);
                 }
+
             }
+
+            this.cacheManager.add(classDoc.qualifiedName(), c.getId(), c.getRootWorkspace());
         }
         return c;
     }
@@ -254,6 +264,10 @@ public class ComponentManager {
 
     public void setSourceControlUrl(String sourceControlUrl) {
         this.sourceControlUrl = sourceControlUrl;
+    }
+
+    public void setIgnoreMethods(boolean ignoreMethods) {
+        this.ignoreMethods = ignoreMethods;
     }
 
     /*public Map<String, ProgramElementDoc> getClassMap(){
