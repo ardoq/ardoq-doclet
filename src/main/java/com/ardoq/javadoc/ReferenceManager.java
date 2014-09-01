@@ -94,7 +94,15 @@ public class ReferenceManager {
                          createReference(sourceClass, parameter.type().qualifiedTypeName() ,"Uses");
                     }
                 }
-                createReference(sourceClass, sourceClass.superclass().qualifiedName(), "Extends");
+                try
+                {
+                    if (!sourceClass.isInterface()) {
+                        createReference(sourceClass, sourceClass.superclass().qualifiedName(), "Extends");
+                    }
+                }
+                catch (NullPointerException npe){
+                    System.err.println("Couldn't reference super class for: "+ sourceClass.qualifiedName());
+                }
 
                 for (FieldDoc field : sourceClass.fields(false)) {
                     createReference(sourceClass, field.type().qualifiedTypeName(), "Uses");
