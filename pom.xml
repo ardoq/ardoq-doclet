@@ -6,7 +6,7 @@
     <groupId>com.ardoq.javadoc</groupId>
     <artifactId>ardoq-doclet</artifactId>
     <packaging>jar</packaging>
-    <version>0.5.5</version>
+    <version>0.5.6</version>
 
     <properties>
         <aws-maven.version>5.0.0.RELEASE</aws-maven.version>
@@ -98,7 +98,7 @@
                             <docletArtifact>
                                 <groupId>com.ardoq.javadoc</groupId>
                                 <artifactId>ardoq-doclet</artifactId>
-                                <version>0.5.5</version>
+                                <version>0.5.6</version>
                             </docletArtifact>
                             <additionalparam>-ardoqToken ${env.ardoqToken} -ardoqHost http://localhost:8080 -projectDir "${project.build.directory}/../" -targetClasses ${project.build.outputDirectory} -workspaceName "${project.name}"  -ardoqOrganization ardoq -sourceControl https://github.com/ardoq/ardoq-doclet/tree/master/src/main/java/</additionalparam>
                             <useStandardDocletOptions>false</useStandardDocletOptions>

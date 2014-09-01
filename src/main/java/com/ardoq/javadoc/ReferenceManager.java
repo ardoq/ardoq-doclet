@@ -62,12 +62,17 @@ public class ReferenceManager {
                 ClassDoc sourceClass = (ClassDoc) source;
 
                 for (PackageDoc target : sourceClass.importedPackages()) {
-                    createReference(source, target.name(), "Uses", "", "ImportedPackage");
+                    if (target != null)
+                    {
+                        createReference(source, target.name(), "Uses", "", "ImportedPackage");
+                    }
                 }
 
                 for (ClassDoc target : sourceClass.importedClasses()) {
-                    createReference(source, target.qualifiedName(), "Uses");
-                    createReference(source, target.name(), "Uses", "", "ImportedClass");
+                    if (target != null) {
+                        createReference(source, target.qualifiedName(), "Uses");
+                        createReference(source, target.name(), "Uses", "", "ImportedClass");
+                    }
                 }
 
                 for (ClassDoc target : sourceClass.interfaces()) {
