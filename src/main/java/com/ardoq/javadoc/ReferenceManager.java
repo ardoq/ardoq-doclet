@@ -60,6 +60,8 @@ public class ReferenceManager {
 
             } else {
                 ClassDoc sourceClass = (ClassDoc) source;
+                try{
+
 
                 for (PackageDoc target : sourceClass.importedPackages()) {
                     if (target != null)
@@ -73,6 +75,10 @@ public class ReferenceManager {
                         createReference(source, target.qualifiedName(), "Uses");
                         createReference(source, target.name(), "Uses", "", "ImportedClass");
                     }
+                }
+                }
+                catch (NullPointerException npe){
+                    System.err.println("Couldn't read imported classes or packages for: "+sourceClass.qualifiedName());
                 }
 
                 for (ClassDoc target : sourceClass.interfaces()) {
