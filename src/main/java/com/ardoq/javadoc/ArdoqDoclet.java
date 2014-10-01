@@ -35,6 +35,8 @@ public class ArdoqDoclet {
     private static String srcDirectory = "";
     private static String targetDirectory = null;
     private static String organization;
+    private static long readTimeout = 300;
+    private static long connectionTimeout = 15;
     private static String cacheDirectory = System.getProperty("java.io.tmpdir");
     private static boolean clearCache;
     private static boolean ignoreMethods = false;
@@ -170,6 +172,12 @@ public class ArdoqDoclet {
                 else if (option[0].equalsIgnoreCase("-cacheDirectory")){
                     cacheDirectory = option[1];
                 }
+                else if (option[0].equalsIgnoreCase("-readTimeout")){
+                    readTimeout = Long.parseLong(option[1]);
+                }
+                else if (option[0].equalsIgnoreCase("-connectionTimeout")){
+                    connectionTimeout = Long.parseLong(option[1]);
+                }
                 else if (option[0].equalsIgnoreCase("-ignoreMethods")){
                     ignoreMethods = true;
                 }
@@ -184,11 +192,11 @@ public class ArdoqDoclet {
         ArdoqClient client = null;
         if (token != null)
         {
-            client = new ArdoqClient(host, token);
+            client = new ArdoqClient(host, token, connectionTimeout, readTimeout);
         }
         else
         {
-            client = new ArdoqClient(host, ardoqUsername, ardoqPassword);
+            client = new ArdoqClient(host, ardoqUsername, ardoqPassword, connectionTimeout, readTimeout);
         }
 
         if (null != organization){

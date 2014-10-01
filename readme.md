@@ -44,7 +44,9 @@ Parameter           | Description
 -cleanCache         | Whether to clean the cache so one does not use old references. Useful in a maven build processes where the first module that everyone uses can clean the cache.
 -d                  | The location of your libs e.g. (./target)
 -sourcepath         | Java source path (e.g. ./src/main/java)
--exclude            | Which packages to ignore; e.g. ```java.net:java.lang```
+-exclude            | Which packages to ignore; e.g: java.net:java.lang
+-connectionTimeout  | Number of seconds before connection times out (default 15s)
+-readTimeout        | Number of seconds before read times out (default 300s)! Some have large workspaces.
 ```
 
 ###Java command line
@@ -92,7 +94,7 @@ It will look for the environment variable ```YOUR_ARDOQ_TOKEN``` to authenticate
                             <docletArtifact>
                                 <groupId>com.ardoq.javadoc</groupId>
                                 <artifactId>ardoq-doclet</artifactId>
-                                <version>0.5.8</version>
+                                <version>0.5.9</version>
                             </docletArtifact>
                             <additionalparam>-ardoqToken ${env.YOUR_ARDOQ_TOKEN} -projectDir "${project.build.directory}/../" -targetClasses ${project.build.outputDirectory} -workspaceName "${project.name}-${project.version}"</additionalparam>
                             <useStandardDocletOptions>false</useStandardDocletOptions>
