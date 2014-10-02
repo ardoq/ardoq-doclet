@@ -1,7 +1,5 @@
 package com.ardoq.util;
 
-import java.io.UnsupportedEncodingException;
-
 /**
  Simple JavaDoc HTML to Markdown conversion....
  */

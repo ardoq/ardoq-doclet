@@ -1,11 +1,12 @@
 package com.ardoq.javadoc;
 
-import com.ardoq.model.*;
+import com.ardoq.model.Component;
+import com.ardoq.model.Model;
+import com.ardoq.model.Reference;
+import com.ardoq.model.Workspace;
 import com.ardoq.util.CacheManager;
-import com.ardoq.util.SimpleMarkdownUtil;
 import com.ardoq.util.SyncUtil;
 import com.sun.javadoc.*;
-import com.sun.javadoc.Tag;
 import jdepend.framework.JDepend;
 import jdepend.framework.JavaPackage;
 
