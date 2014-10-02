@@ -94,7 +94,7 @@ It will look for the environment variable ```YOUR_ARDOQ_TOKEN``` to authenticate
                             <docletArtifact>
                                 <groupId>com.ardoq.javadoc</groupId>
                                 <artifactId>ardoq-doclet</artifactId>
-                                <version>0.5.9</version>
+                                <version>0.5.10</version>
                             </docletArtifact>
                             <additionalparam>-ardoqToken ${env.YOUR_ARDOQ_TOKEN} -projectDir "${project.build.directory}/../" -targetClasses ${project.build.outputDirectory} -workspaceName "${project.name}-${project.version}"</additionalparam>
                             <useStandardDocletOptions>false</useStandardDocletOptions>
