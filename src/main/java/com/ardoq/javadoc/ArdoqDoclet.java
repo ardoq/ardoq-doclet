@@ -1,19 +1,18 @@
 package com.ardoq.javadoc;
 
 import com.ardoq.ArdoqClient;
-import com.ardoq.model.*;
+import com.ardoq.model.Workspace;
 import com.ardoq.util.CacheManager;
 import com.ardoq.util.SyncUtil;
-import com.sun.javadoc.*;
+import com.sun.javadoc.DocErrorReporter;
+import com.sun.javadoc.RootDoc;
 import jdepend.framework.JavaPackage;
 import retrofit.RestAdapter;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.Collection;
-import java.util.HashMap;
 
 /**
  * Contains all the functionality for running ArdoqDoclet standalone or via JavaDoc, or maven.
@@ -66,6 +65,7 @@ public class ArdoqDoclet {
         this.componentManager = new ComponentManager(workspace, ardoqSync, root, cacheManager);
         this.componentManager.setIgnoreMethods(ignoreMethods);
         this.referenceManager = new ReferenceManager(componentManager, ardoqSync, cacheManager);
+        this.referenceManager.setIgnoreMethods(ignoreMethods);
 
         if (null != sourceControl)
         {

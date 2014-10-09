@@ -40,6 +40,7 @@ Parameter           | Description
 -targetClasses      | If you specify this folder where your compiled classes are, we will run JDepend analysis on your packages.
 -sourceControl      | An URL to the location of your Java Source files, e.g. https://github.com/ardoq/ardoq-doclet/tree/master/src/main/java
 -subpackages        | Which packages to include
+-ignoreMethods      | For large projects, ignore the methods and just add them as documentation to the page
 -cacheDirectory     | Which directory to use for caching of information, default is java.io.tmpdir
 -cleanCache         | Whether to clean the cache so one does not use old references. Useful in a maven build processes where the first module that everyone uses can clean the cache.
 -d                  | The location of your libs e.g. (./target)
@@ -94,7 +95,7 @@ It will look for the environment variable ```YOUR_ARDOQ_TOKEN``` to authenticate
                             <docletArtifact>
                                 <groupId>com.ardoq.javadoc</groupId>
                                 <artifactId>ardoq-doclet</artifactId>
-                                <version>0.5.9</version>
+                                <version>0.6.0</version>
                             </docletArtifact>
                             <additionalparam>-ardoqToken ${env.YOUR_ARDOQ_TOKEN} -projectDir "${project.build.directory}/../" -targetClasses ${project.build.outputDirectory} -workspaceName "${project.name}-${project.version}"</additionalparam>
                             <useStandardDocletOptions>false</useStandardDocletOptions>

@@ -48,27 +48,40 @@ public class ComponentManager {
             Component packageComp = this.addPackage(p);
             this.addClasses(packageComp, p.allClasses(true));
         }
-
-        this.addReturnTypes();
+        if (!this.ignoreMethods)
+        {
+            this.addReturnTypes();
+        }
     }
 
     void addReturnTypes() {
 
         for (ProgramElementDoc doc : this.classMap.values()) {
             if (doc.isMethod()) {
-                updateMethodDoc((MethodDoc) doc);
+                updateMethodDoc((MethodDoc) doc,null);
             }
         }
     }
 
-    void updateMethodDoc(MethodDoc doc) {
+    boolean updateMethodDoc(MethodDoc doc, Component newComp) {
         if (doc.returnType() != null && doc.returnType().qualifiedTypeName() != null) {
-            Component c = ardoqSync.getComponentByPath(doc.qualifiedName());
-            c.setDescription(SimpleMarkdownUtil.htmlToMarkdown(c.getDescription()) + "\n\nReturns " + this.getComponentLinkOrText(doc.returnType().qualifiedTypeName()));
-            this.updateComponent(doc.qualifiedName(), c);
+            Component c = (newComp != null) ? newComp : ardoqSync.getComponentByPath(this.getComponentName(doc.qualifiedName()));
+            String description = SimpleMarkdownUtil.htmlToMarkdown(c.getDescription()) + "\n\nReturns " + this.getComponentLinkOrText(doc.returnType().qualifiedTypeName());
+            c.setDescription(description);
+            this.updateComponent(this.getComponentName(doc.qualifiedName()), c);
+            return true;
 
         }
+        return false;
 
+    }
+
+    public String getComponentName(String name){
+        if (this.ignoreMethods){
+            return name.replaceAll("(.+)\\..+", "$1");
+        }
+
+        return name;
     }
 
     public void updateComponent(String qualifiedName, Component c) {
@@ -128,7 +141,9 @@ public class ComponentManager {
     }
 
     Component addClass(Component packageComp, ProgramElementDoc classDoc) {
-        Component c = this.componentMap.get(classDoc.qualifiedName());
+
+
+        Component c = this.componentMap.get(classDoc.isMethod() ? this.getComponentName(classDoc.qualifiedName()) : classDoc.qualifiedName());
 
         if (c == null) {
             String type = this.getType(classDoc);
@@ -150,7 +165,9 @@ public class ComponentManager {
             } else if (classDoc.isMethod()) {
                 MethodDoc mdr = (MethodDoc) classDoc;
                 //Reset description, method documentation below.
+
                 c.setDescription("");
+
                 for (MethodDoc md : mdr.containingClass().methods()) {
 
                     if (md.qualifiedName().equals(mdr.qualifiedName())) {
@@ -170,6 +187,23 @@ public class ComponentManager {
             }
 
             this.cacheManager.add(classDoc.qualifiedName(), c.getId(), c.getRootWorkspace());
+        } else if (classDoc.isMethod() && this.ignoreMethods){
+            MethodDoc mdr = (MethodDoc) classDoc;
+            Component newComp = (Component)c.clone();
+            newComp.setDescription(c.getDescription()+"###Methods\n\n");
+            boolean update = false;
+            for (MethodDoc md : mdr.containingClass().methods()) {
+                if (md.qualifiedName().equals(mdr.qualifiedName())) {
+                    this.classMap.put(md.qualifiedName(), md);
+                    newComp.setDescription(SimpleMarkdownUtil.htmlToMarkdown(c.getDescription())
+                               + "\n\n####"+md.modifiers()+" " + this.getComponentLinkOrText(md.returnType().qualifiedTypeName())+" "+getParamsDocumentation(md)+"\n\n***\n");
+                    update = true;
+                }
+            }
+            if (update){
+                this.updateComponent(this.getComponentName(classDoc.qualifiedName()), newComp);
+            }
+
         }
         return c;
     }

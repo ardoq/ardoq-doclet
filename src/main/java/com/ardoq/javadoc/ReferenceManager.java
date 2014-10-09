@@ -1,11 +1,12 @@
 package com.ardoq.javadoc;
 
-import com.ardoq.model.*;
+import com.ardoq.model.Component;
+import com.ardoq.model.Model;
+import com.ardoq.model.Reference;
+import com.ardoq.model.Workspace;
 import com.ardoq.util.CacheManager;
-import com.ardoq.util.SimpleMarkdownUtil;
 import com.ardoq.util.SyncUtil;
 import com.sun.javadoc.*;
-import com.sun.javadoc.Tag;
 import jdepend.framework.JDepend;
 import jdepend.framework.JavaPackage;
 
@@ -24,6 +25,7 @@ public class ReferenceManager {
     private JDepend analyzer;
 
     private HashMap<String, Boolean> addedRef = new HashMap<String, Boolean>();
+    private boolean ignoreMethods;
 
     public ReferenceManager(ComponentManager compManager, SyncUtil ardoqSync, CacheManager cacheManager) {
         this.compManager = compManager;
@@ -49,13 +51,13 @@ public class ReferenceManager {
             if (source.isMethod()) {
                 MethodDoc md = (MethodDoc) source;
                 for (ClassDoc ex : md.thrownExceptions()) {
-                    createReference(source, ex.qualifiedTypeName(), "Throws");
+                    createReference(this.getMethodSource(source), ex.qualifiedTypeName(), "Throws");
                 }
                 for (Parameter p : md.parameters()) {
-                    createReference(source, p.type().qualifiedTypeName(), "Uses");
+                    createReference(this.getMethodSource(source), p.type().qualifiedTypeName(), "Uses");
                 }
 
-                createReference(source, md.returnType().qualifiedTypeName(), "Uses", "Returns the target", "ReturnValue");
+                createReference(this.getMethodSource(source), md.returnType().qualifiedTypeName(), "Uses", "Returns the target", "ReturnValue");
 
 
             } else {
@@ -114,6 +116,11 @@ public class ReferenceManager {
         this.addJDependAnalysis();
 
     }
+
+    private ProgramElementDoc getMethodSource(ProgramElementDoc source) {
+        return (this.ignoreMethods) ? source.containingClass() : source;
+    }
+
 
     private void addJDependAnalysis() {
         if (null != this.analyzer ) {
@@ -221,5 +228,9 @@ public class ReferenceManager {
             }
         }
         return targetComp;
+    }
+
+    public void setIgnoreMethods(boolean ignoreMethods) {
+        this.ignoreMethods = ignoreMethods;
     }
 }
